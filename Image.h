@@ -19,6 +19,7 @@ class Image
 
         Image(const char* filename);
         Image(int w, int h, int channels);
+        Image(int w, int h, int channels, int* defaultValues);
         Image(const Image& img);
         ~Image();
 

@@ -1,6 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define BYTE_BOUND(value) value < 0 ? 0 : (value > 255 ? 255 : value)
+#define NORMALIZE(value) value >= 0 && value <= 1 ? value : (value > 1 ? 1 : 0) 
 #include "Image.h"
 #include "stb_image.h"
 #include "stb_image_write.h"
@@ -25,6 +26,19 @@ Image::Image(int w, int h,int channels): w(w), h(h), channels(channels)
     size = w*h*channels;
     data = new uint8_t[size];
 }
+
+
+Image::Image(int w, int h, int channels, int* defaultValues): Image(w, h, channels)
+{
+    for(int i = 0; i < size; i += channels)
+        {
+            for(int j = 0; j < channels; j++)
+            {
+                data[i+j] = defaultValues[j];
+            }
+        }   
+}
+
 
 Image::Image(const Image& img): Image(img.w, img.h, img.channels)
 {
@@ -85,7 +99,15 @@ ImageType Image::getType(const char *filename)
 
 Image& Image::colorMask(float r, float g, float b)
 {
-    if(channels < 3) return *this;
+    if(channels < 3) 
+    {
+        printf("It is not possible to perform a masking operation on an image with less than 3 channels\n");
+        return *this;
+    }
+
+    r = NORMALIZE(r);
+    g = NORMALIZE(g);
+    b = NORMALIZE(b);
 
     for(int i = 0; i < size; i += channels)
     {
